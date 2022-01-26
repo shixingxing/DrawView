@@ -1,6 +1,5 @@
 package com.byox.drawview.views;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,24 +8,19 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.RectF;
-import android.os.Build;
-import android.support.annotation.AttrRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
-import android.util.SizeF;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+
+import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Created by IngMedina on 30/03/2017.
  */
 
-public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView implements View.OnTouchListener {
+public class ZoomRegionView extends androidx.appcompat.widget.AppCompatImageView implements View.OnTouchListener {
 
     // LISTENER
     private OnZoomRegionListener mOnZoomRegionListener;
@@ -86,7 +80,7 @@ public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView
         float touchX = event.getX();
         float touchY = event.getY();
 
-        switch (event.getActionMasked()){
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mCurrentMotionEvent = MotionEvent.ACTION_DOWN;
                 mMoveZoomArea = false;
@@ -102,7 +96,7 @@ public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView
 
             case MotionEvent.ACTION_MOVE:
                 if ((mCurrentMotionEvent == MotionEvent.ACTION_DOWN
-                        || mCurrentMotionEvent == MotionEvent.ACTION_MOVE) && mMoveZoomArea){
+                        || mCurrentMotionEvent == MotionEvent.ACTION_MOVE) && mMoveZoomArea) {
                     mCurrentMotionEvent = MotionEvent.ACTION_MOVE;
                     Rect preview = new Rect(
                             mZoomedRegion.left + (int) (touchX - mStartTouchX),
@@ -147,6 +141,9 @@ public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView
     }
 
     public void drawZoomRegion(Bitmap parentContent, Rect sourceRect, float scaleFactor) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            return;
+        }
         this.mParentContent = parentContent;
         mZoomedRegion = new Rect((int) (sourceRect.left / scaleFactor), (int) (sourceRect.top / scaleFactor),
                 (int) (sourceRect.right / scaleFactor), (int) (sourceRect.bottom / scaleFactor));
@@ -166,7 +163,7 @@ public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView
         this.mZoomedRegionPaint.setStrokeWidth(strokeWidth);
     }
 
-    private void setZoomedRegionStrokeColor(int strokeColor){
+    private void setZoomedRegionStrokeColor(int strokeColor) {
         this.mZoomedRegionPaint.setColor(strokeColor);
     }
 
@@ -174,16 +171,16 @@ public class ZoomRegionView extends android.support.v7.widget.AppCompatImageView
         return this.mZoomedRegionPaint.getStrokeWidth();
     }
 
-    public int getZoomedRegionStrokeColor(){
+    public int getZoomedRegionStrokeColor() {
         return this.mZoomedRegionPaint.getColor();
     }
 
     // LISTENER
-    public void setOnZoomRegionListener(OnZoomRegionListener onZoomRegionListener){
+    public void setOnZoomRegionListener(OnZoomRegionListener onZoomRegionListener) {
         mOnZoomRegionListener = onZoomRegionListener;
     }
 
-    public interface OnZoomRegionListener{
+    public interface OnZoomRegionListener {
         void onZoomRegionMoved(Rect newRect);
     }
 }

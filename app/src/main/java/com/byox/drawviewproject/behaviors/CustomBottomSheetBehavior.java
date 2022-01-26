@@ -1,11 +1,13 @@
 package com.byox.drawviewproject.behaviors;
 
 import android.content.Context;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 /**
  * Created by Ing. Oscar G. Medina Cruz on 22/02/2017.
@@ -14,7 +16,8 @@ import android.view.View;
 public class CustomBottomSheetBehavior<V extends View> extends BottomSheetBehavior<V> {
     private boolean mLocked = false;
 
-    public CustomBottomSheetBehavior() {}
+    public CustomBottomSheetBehavior() {
+    }
 
     public CustomBottomSheetBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);

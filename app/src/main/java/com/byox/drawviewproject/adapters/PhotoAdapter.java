@@ -1,12 +1,13 @@
 package com.byox.drawviewproject.adapters;
 
-import android.content.Context;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.byox.drawviewproject.R;
 import com.byox.drawviewproject.listeners.OnClickListener;
@@ -26,14 +27,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     // VARS
     private List<File> mFileList;
-    private Context mContext;
-    private int mItemOriginalHeight = -1;
-//    boolean isVertical;
+
+    public void setFileList(List<File> fileList) {
+        this.mFileList = fileList;
+    }
 
     public PhotoAdapter(List<File> fileList, OnClickListener onClickListener) {
         mFileList = fileList;
         mOnClickListener = onClickListener;
-//        this.isVertical = isVertical;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,14 +50,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mContext = parent.getContext();
         return new ViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.layout_photo, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
-        Picasso.with(mContext).load(mFileList.get(position)).memoryPolicy(MemoryPolicy.NO_CACHE)
+    public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+        Picasso.get().load(mFileList.get(position)).memoryPolicy(MemoryPolicy.NO_CACHE)
                 .placeholder(R.color.colorBlackSemitrans).fit().centerCrop().into(holder.imageView);
 
         if (mOnClickListener != null) {
@@ -71,6 +71,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mFileList.size();
+        if (mFileList == null) {
+            return 0;
+        } else {
+            return mFileList.size();
+        }
     }
 }

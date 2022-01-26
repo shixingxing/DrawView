@@ -1,30 +1,18 @@
 package com.byox.drawviewproject.dialogs;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.AsyncTaskCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.byox.drawviewproject.R;
 import com.byox.drawviewproject.adapters.PhotoAdapter;
@@ -32,10 +20,15 @@ import com.byox.drawviewproject.behaviors.CustomBottomSheetBehavior;
 import com.byox.drawviewproject.listeners.OnClickListener;
 import com.byox.drawviewproject.utils.FileUtils;
 import com.byox.drawviewproject.utils.LayoutUtils;
+import com.byox.drawviewproject.utils.RxUtil;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
+
+import io.reactivex.rxjava3.core.ObservableEmitter;
 
 /**
  * Created by Ing. Oscar G. Medina Cruz on 21/12/2016.
@@ -51,6 +44,7 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
     // VIEWS
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private PhotoAdapter photoAdapter;
     private LinearLayout mNoImages;
 
     // VARS
@@ -76,14 +70,32 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(LayoutUtils.GetFlowLayoutManager(getContext()));
 
+        photoAdapter =
+                new PhotoAdapter(imageList,
+                        new OnClickListener() {
+                            @Override
+                            public void onItemClickListener(View view, Object contentObject, int position) {
+                                ByteArrayOutputStream byteArrayOutputStream =
+                                        new ByteArrayOutputStream();
+                                BitmapFactory.decodeFile(((File) contentObject).getPath())
+                                        .compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream);
+                                if (onImageSelectListener != null) {
+                                    onImageSelectListener.onSelectImage((File) contentObject);
+                                    onImageSelectListener.onSelectImage(byteArrayOutputStream.toByteArray());
+                                }
+                                dismiss();
+                            }
+                        });
+        mRecyclerView.setAdapter(photoAdapter);
+
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                AsyncTaskCompat.executeParallel(new LoadImagesFromStorage());
+                refresh();
             }
         });
 
-        AsyncTaskCompat.executeParallel(new LoadImagesFromStorage());
+        refresh();
 
         setListeners();
 
@@ -95,8 +107,9 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
         mCustomBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_COLLAPSED)
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     dismiss();
+                }
             }
 
             @Override
@@ -110,7 +123,7 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
         layoutParams.setBehavior(mCustomBottomSheetBehavior);
     }
 
-    private void setListeners(){
+    private void setListeners() {
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -118,9 +131,9 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
 
                 mRecyclerViewScrollAmount += dy;
 
-                if (mRecyclerViewScrollAmount > 0)
+                if (mRecyclerViewScrollAmount > 0) {
                     mCustomBottomSheetBehavior.setLocked(true);
-                else {
+                } else {
                     mCustomBottomSheetBehavior.setLocked(false);
                     mRecyclerViewScrollAmount = 0;
                 }
@@ -128,74 +141,43 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
         });
     }
 
-    private class LoadImagesFromStorage extends AsyncTask<Void, Void, Void>{
-        private List<File> imageList;
+    List<File> imageList;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+    private void refresh() {
 
-            mNoImages.setVisibility(View.INVISIBLE);
+        mNoImages.setVisibility(View.INVISIBLE);
+        mSwipeRefreshLayout.setRefreshing(true);
 
-            mSwipeRefreshLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    mSwipeRefreshLayout.setRefreshing(true);
-                }
-            });
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            imageList = FileUtils.GetSortedFilesByDate(
-                    FileUtils.GetImageList(Environment.getExternalStorageDirectory()));
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
-
-            if (!isCancelled()){
-                PhotoAdapter photoAdapter =
-                        new PhotoAdapter(imageList,
-                                new OnClickListener() {
-                                    @Override
-                                    public void onItemClickListener(View view, Object contentObject, int position) {
-                                        ByteArrayOutputStream byteArrayOutputStream =
-                                                new ByteArrayOutputStream();
-                                        BitmapFactory.decodeFile(((File) contentObject).getPath())
-                                                .compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream);
-                                        if (onImageSelectListener != null) {
-                                            onImageSelectListener.onSelectImage((File) contentObject);
-                                            onImageSelectListener.onSelectImage(byteArrayOutputStream.toByteArray());
-                                        }
-                                        dismiss();
-                                    }
-                                });
-                mRecyclerView.setAdapter(photoAdapter);
-
-                mSwipeRefreshLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        mSwipeRefreshLayout.setEnabled(false);
-                    }
-                });
-
-                if (imageList.size() == 0)
-                    mNoImages.setVisibility(View.VISIBLE);
+        RxUtil.io(new RxUtil.RxTask<Object>() {
+            @Override
+            public Object doSth(ObservableEmitter emitter, Object value) {
+                imageList = FileUtils.GetSortedFilesByDate(
+                        FileUtils.GetImageList(Environment.getExternalStorageDirectory()));
+                return new Object();
             }
-        }
+
+            @Override
+            public void onNext(Object value) {
+                mSwipeRefreshLayout.setRefreshing(false);
+                mSwipeRefreshLayout.setEnabled(false);
+
+                photoAdapter.setFileList(imageList);
+                photoAdapter.notifyDataSetChanged();
+                if (imageList.size() == 0) {
+                    mNoImages.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     // INTERFACES
-    public void setOnImageSelectListener(OnImageSelectListener onImageSelectListener){
+    public void setOnImageSelectListener(OnImageSelectListener onImageSelectListener) {
         this.onImageSelectListener = onImageSelectListener;
     }
 
-    public interface OnImageSelectListener{
+    public interface OnImageSelectListener {
         void onSelectImage(File imageFile);
+
         void onSelectImage(byte[] imageBytes);
     }
 }

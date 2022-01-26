@@ -8,19 +8,17 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.byox.drawview.enums.BackgroundScale;
 import com.byox.drawview.enums.BackgroundType;
@@ -34,8 +32,8 @@ import com.byox.drawviewproject.dialogs.SaveBitmapDialog;
 import com.byox.drawviewproject.dialogs.SelectChoiceDialog;
 import com.byox.drawviewproject.dialogs.SelectImageDialog;
 import com.byox.drawviewproject.utils.AnimateUtils;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 
@@ -54,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem mMenuItemRedo;
     private MenuItem mMenuItemUndo;
 
-    // ADS
-    private NativeExpressAdView mAdView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         setupToolbar();
         setupDrawView();
         setListeners();
-        setupADS();
     }
 
     @Override
@@ -124,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "action_clear_history", Toast.LENGTH_SHORT).show();
                 mDrawView.clearHistory();
                 break;
+            default:
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -131,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case STORAGE_PERMISSIONS:
                 if (grantResults.length > 0
@@ -153,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }, 600);
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -180,16 +179,18 @@ public class MainActivity extends AppCompatActivity {
             public void onEndDrawing() {
                 canUndoRedo();
 
-                if (mFabClearDraw.getVisibility() == View.INVISIBLE)
+                if (mFabClearDraw.getVisibility() == View.INVISIBLE) {
                     AnimateUtils.ScaleInAnimation(mFabClearDraw, 50, 300, new OvershootInterpolator(), true);
+                }
             }
 
             @Override
             public void onClearDrawing() {
                 canUndoRedo();
 
-                if (mFabClearDraw.getVisibility() == View.VISIBLE)
+                if (mFabClearDraw.getVisibility() == View.VISIBLE) {
                     AnimateUtils.ScaleOutAnimation(mFabClearDraw, 50, 300, new OvershootInterpolator(), true);
+                }
             }
 
             @Override
@@ -216,8 +217,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         canUndoRedo();
-                        if (!mDrawView.isDrawViewEmpty())
+                        if (!mDrawView.isDrawViewEmpty()) {
                             mFabClearDraw.setVisibility(View.VISIBLE);
+                        }
                     }
                 }, 300);
             }
@@ -231,14 +233,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupADS() {
-        mAdView = (NativeExpressAdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FCFD13908AA93E51A1BA390FA8010631")
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .build();
-        mAdView.loadAd(adRequest);
-    }
 
     private void changeDrawTool() {
         SelectChoiceDialog selectChoiceDialog =
@@ -376,10 +370,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         } else {
-            if (option == 0)
+            if (option == 0) {
                 saveDraw();
-            else if (option == 1)
+            } else if (option == 1) {
                 chooseBackgroundImage();
+            }
         }
     }
 }

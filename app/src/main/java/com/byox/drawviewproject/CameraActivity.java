@@ -1,44 +1,36 @@
 package com.byox.drawviewproject;
 
-import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.os.Build;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 
-import com.byox.drawview.enums.BackgroundScale;
-import com.byox.drawview.enums.BackgroundType;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.byox.drawview.enums.DrawingCapture;
 import com.byox.drawview.enums.DrawingMode;
 import com.byox.drawview.enums.DrawingTool;
-import com.byox.drawview.utils.BitmapUtils;
 import com.byox.drawview.views.DrawCameraView;
 import com.byox.drawview.views.DrawView;
 import com.byox.drawviewproject.dialogs.DrawAttribsDialog;
 import com.byox.drawviewproject.dialogs.RequestTextDialog;
 import com.byox.drawviewproject.dialogs.SaveBitmapDialog;
 import com.byox.drawviewproject.dialogs.SelectChoiceDialog;
-import com.byox.drawviewproject.dialogs.SelectImageDialog;
 import com.byox.drawviewproject.utils.AnimateUtils;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.NativeExpressAdView;
-
-import java.io.File;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -56,8 +48,6 @@ public class CameraActivity extends AppCompatActivity {
     private MenuItem mMenuItemRedo;
     private MenuItem mMenuItemUndo;
 
-    // ADS
-    private NativeExpressAdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +55,11 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         mDrawCameraView = (DrawCameraView) findViewById(R.id.draw_cam_view);
-        mDrawView = (DrawView) findViewById(R.id.draw_view); 
+        mDrawView = (DrawView) findViewById(R.id.draw_view);
         mFabClearDraw = (FloatingActionButton) findViewById(R.id.fab_clear);
 
         requestPermissions(1);
         setupToolbar();
-        setupADS();
     }
 
     @Override
@@ -116,12 +105,15 @@ public class CameraActivity extends AppCompatActivity {
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case STORAGE_PERMISSIONS:
                 if (grantResults.length > 0
@@ -150,6 +142,8 @@ public class CameraActivity extends AppCompatActivity {
                     finish();
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -172,16 +166,18 @@ public class CameraActivity extends AppCompatActivity {
             public void onEndDrawing() {
                 canUndoRedo();
 
-                if (mFabClearDraw.getVisibility() == View.INVISIBLE)
+                if (mFabClearDraw.getVisibility() == View.INVISIBLE) {
                     AnimateUtils.ScaleInAnimation(mFabClearDraw, 50, 300, new OvershootInterpolator(), true);
+                }
             }
 
             @Override
             public void onClearDrawing() {
                 canUndoRedo();
 
-                if (mFabClearDraw.getVisibility() == View.VISIBLE)
+                if (mFabClearDraw.getVisibility() == View.VISIBLE) {
                     AnimateUtils.ScaleOutAnimation(mFabClearDraw, 50, 300, new OvershootInterpolator(), true);
+                }
             }
 
             @Override
@@ -208,8 +204,9 @@ public class CameraActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         canUndoRedo();
-                        if (!mDrawView.isDrawViewEmpty())
+                        if (!mDrawView.isDrawViewEmpty()) {
                             mFabClearDraw.setVisibility(View.VISIBLE);
+                        }
                     }
                 }, 300);
             }
@@ -221,15 +218,6 @@ public class CameraActivity extends AppCompatActivity {
                 clearDraw();
             }
         });
-    }
-
-    private void setupADS() {
-        mAdView = (NativeExpressAdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FCFD13908AA93E51A1BA390FA8010631")
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .build();
-        mAdView.loadAd(adRequest);
     }
 
     private void changeDrawTool() {
@@ -336,7 +324,7 @@ public class CameraActivity extends AppCompatActivity {
                 } else {
                     saveDraw();
                 }
-            } else  if (option == 1){
+            } else if (option == 1) {
                 if (ContextCompat.checkSelfPermission(CameraActivity.this,
                         Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 
@@ -350,8 +338,9 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }
         } else {
-            if (option == 0)
+            if (option == 0) {
                 saveDraw();
+            }
             if (option == 1) {
                 mDrawCameraView.attachCameraView();
                 setListeners();

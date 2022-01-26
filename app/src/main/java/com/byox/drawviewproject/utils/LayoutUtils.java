@@ -2,14 +2,12 @@ package com.byox.drawviewproject.utils;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.byox.drawviewproject.R;
-import com.ch4vi.flowlayoutmanager.FlowLayoutManager;
-
-import org.jetbrains.annotations.NotNull;
-
-import kotlin.Pair;
 
 /**
  * Created by IngMedina on 28/03/2017.
@@ -53,48 +51,13 @@ public class LayoutUtils {
         if (!context.getResources().getBoolean(R.bool.isTablet)) {
             switch (context.getResources().getConfiguration().orientation) {
                 case Configuration.ORIENTATION_PORTRAIT:
-                    layoutManager = new FlowLayoutManager(PHONE_PORTRAIT_COLUMNS_LAYOUT_COLUMNS,
-                            RecyclerView.VERTICAL, new FlowLayoutManager.Interface() {
-                        @NotNull
-                        @Override
-                        public Pair<Integer, Integer> getProportionalSizeForChild(int i) {
-                            if (i == 0)
-                                mFlowLayoutPositionMultiplier = 0;
-
-                            Pair<Integer, Integer> pair;
-
-                            if (i - (PORTRAIT_FLOW_LAYOUT_PATTERN.length * mFlowLayoutPositionMultiplier) ==
-                                    PORTRAIT_FLOW_LAYOUT_PATTERN.length)
-                                mFlowLayoutPositionMultiplier++;
-
-                            pair = (Pair<Integer, Integer>)
-                                    PORTRAIT_FLOW_LAYOUT_PATTERN[i - (PORTRAIT_FLOW_LAYOUT_PATTERN.length * mFlowLayoutPositionMultiplier)];
-
-                            return pair;
-                        }
-                    });
+                    layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
                     break;
                 case Configuration.ORIENTATION_LANDSCAPE:
-                    layoutManager = new FlowLayoutManager(PHONE_LANDSCAPE_COLUMNS_LAYOUT_COLUMNS,
-                            RecyclerView.VERTICAL, new FlowLayoutManager.Interface() {
-                        @NotNull
-                        @Override
-                        public Pair<Integer, Integer> getProportionalSizeForChild(int i) {
-                            if (i == 0)
-                                mFlowLayoutPositionMultiplier = 0;
+                    layoutManager = new StaggeredGridLayoutManager(5, StaggeredGridLayoutManager.VERTICAL);
+                    break;
 
-                            Pair<Integer, Integer> pair;
-
-                            if (i - (LANDSCAPE_FLOW_LAYOUT_PATTERN.length * mFlowLayoutPositionMultiplier) ==
-                                    LANDSCAPE_FLOW_LAYOUT_PATTERN.length)
-                                mFlowLayoutPositionMultiplier++;
-
-                            pair = (Pair<Integer, Integer>)
-                                    LANDSCAPE_FLOW_LAYOUT_PATTERN[i - (LANDSCAPE_FLOW_LAYOUT_PATTERN.length * mFlowLayoutPositionMultiplier)];
-
-                            return pair;
-                        }
-                    });
+                default:
                     break;
             }
         }

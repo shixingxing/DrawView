@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -19,10 +18,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -38,6 +34,9 @@ import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+
 import com.byox.drawview.R;
 import com.byox.drawview.dictionaries.DrawMove;
 import com.byox.drawview.enums.BackgroundScale;
@@ -50,7 +49,6 @@ import com.byox.drawview.utils.BitmapUtils;
 import com.byox.drawview.utils.MatrixUtils;
 import com.byox.drawview.utils.SerializablePaint;
 import com.byox.drawview.utils.SerializablePath;
-import com.byox.drawview.utils.ViewUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
