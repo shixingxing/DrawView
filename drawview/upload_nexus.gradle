@@ -1,0 +1,49 @@
+apply plugin: 'maven-publish'
+
+def isReleaseBuild() {
+    return VERSION_NAME.toUpperCase().contains("SNAPSHOT") == false
+}
+
+def getRepositoryUsername() {
+    return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+}
+
+def getRepositoryUrl() {
+    return isReleaseBuild() ? RELEASE_REPOSITORY_URL : SNAPSHOT_REPOSITORY_URL
+}
+
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            Production(MavenPublication) {
+                from components.release
+                groupId = GROUP
+                artifactId = POM_ARTIFACT_ID
+                version = VERSION_NAME
+                // 上传source，这样使用放可以看到方法注释
+                artifact generateSourcesJar
+            }
+        }
+        repositories {
+            // 定义一个 maven 仓库
+            maven {
+                allowInsecureProtocol true
+//                url = getRepositoryUrl()
+//                // 仓库用户名密码
+//                credentials {
+//                    username = NEXUS_USERNAME
+//                    password = NEXUS_PASSWORD
+//                }
+            }
+        }
+    }
+}
