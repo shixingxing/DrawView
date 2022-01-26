@@ -15,7 +15,7 @@ public class RxUtil {
 
     private static final String TAG = RxUtil.class.getSimpleName();
 
-    public static DisposableObserver io(RxTask task, long delay, Object object) {
+    public static DisposableObserver io(final RxTask task, long delay, final Object object) {
 
 
         Observable observable = Observable.create(new ObservableOnSubscribe<Object>() {
