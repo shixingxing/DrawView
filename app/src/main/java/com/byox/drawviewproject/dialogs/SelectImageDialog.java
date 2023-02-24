@@ -1,14 +1,16 @@
 package com.byox.drawviewproject.dialogs;
 
-import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,10 +60,15 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
         return new SelectImageDialog();
     }
 
+    @Nullable
     @Override
-    public void setupDialog(Dialog dialog, int style) {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_select_image, null);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.layout_select_image, container, false);
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl_select_image);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_select_image);
         mNoImages = (LinearLayout) view.findViewById(R.id.ll_no_images);
@@ -99,7 +106,6 @@ public class SelectImageDialog extends BottomSheetDialogFragment {
 
         setListeners();
 
-        dialog.setContentView(view);
 
         mCustomBottomSheetBehavior = new CustomBottomSheetBehavior();
         mCustomBottomSheetBehavior.setLocked(false);
